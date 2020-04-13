@@ -4,6 +4,8 @@ import org.apache.log4j.{Level, Logger}
 import java.time.LocalDate
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions._
+import java.io.{File, PrintWriter}
+import scala.io.Source
 
 /**
   * 1st milestone: data extraction
@@ -35,17 +37,24 @@ object Extraction extends ExtractionInterface {
     joinedDS.collect().map{case (s: Station, t: Temp) => (LocalDate.of(t.year, t.month, t.day), Location(s.longitude, s.latitude), t.temp)}
   }
 
+  def getRDDFromResource(resource: String): Dataset[String] = {
+    val fileStream = Source.getClass.getResourceAsStream(resource)
+    session.sparkContext.makeRDD(Source.fromInputStream(fileStream).getLines().toList).toDS
+  }
+
   def temperaturesDS(year: Int, temperaturesFile: String): Dataset[Temp] = {
-    val df = session.read.format("csv").schema("SIN integer ,WBAN integer ,month integer ,day integer, temp double")
-      .load(getClass.getResource(temperaturesFile).getPath)
+    val stringDS = getRDDFromResource(temperaturesFile)
+    val df = session.read.schema("SIN integer ,WBAN integer ,month integer ,day integer, temp double")
+      .csv(stringDS)
       .na.fill(0, Array("SIN","WBAN"))
       .withColumn("year",lit(year))
     df.as[Temp].map(convertToCelcius)
   }
 
   def stationsDS(stationsFile: String): Dataset[Station] = {
-    val df = session.read.format("csv").schema("SIN integer ,WBAN integer ,longitude double, latitude double")
-      .load(getClass.getResource(stationsFile).getPath)
+    val stringDS = getRDDFromResource(stationsFile)
+    val df = session.read.schema("SIN integer ,WBAN integer ,longitude double, latitude double")
+      .csv(stringDS)
       .na.fill(0, Array("SIN","WBAN"))
       .na.drop()
     df.as[Station]
