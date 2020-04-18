@@ -1,11 +1,36 @@
 package observatory
 
 import com.sksamuel.scrimage.{Image, Pixel}
+import scala.math._
 
 /**
   * 2nd milestone: basic visualization
   */
 object Visualization extends VisualizationInterface {
+
+
+  val RADIUS = 6371
+  def isAntipode(first: Location, second: Location): Boolean = {
+    val roundFactor = 1E4
+    def roundToFactor(num: Double) = round(num*roundFactor)
+    val correctLat = -second.lat 
+    val correctLon = -second.lon*(180/abs(second.lon) - 1) 
+    roundToFactor(first.lat) == roundToFactor(correctLat) & roundToFactor(first.lon) == roundToFactor(correctLon)
+  }
+
+  /**
+    * @param first First location to measure distance from 
+    * @param second Second location to get distance to
+    * @return Great circle distance according to https://en.wikipedia.org/wiki/Great-circle_distance
+    */
+  def greatCircleDistance(first: Location, second: Location): Double = {
+    val (lon1, lat1, lon2, lat2) = (toRadians(first.lon), toRadians(first.lat), toRadians(second.lon), toRadians(second.lat))
+
+    val delta = if (first == second) 0.0 else if (isAntipode(first, second)) Pi else
+      acos(sin(lat1)*sin(lat2)+cos(lat1)*cos(lat2)*cos(lon2-lon1))
+
+    delta*RADIUS
+  }
 
   /**
     * @param temperatures Known temperatures: pairs containing a location and the temperature at this location
