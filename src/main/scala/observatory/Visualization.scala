@@ -38,7 +38,9 @@ object Visualization extends VisualizationInterface {
     * @return The predicted temperature at `location`
     */
   def predictTemperature(temperatures: Iterable[(Location, Temperature)], location: Location): Temperature = {
-    ???
+    val (weighting: Double, weightedTemp: Temperature) = temperatures.map{ case (loc: Location, temp: Temperature) => (1/greatCircleDistance(location, loc), temp)}
+      .foldLeft((0.0,0.0))((acc: (Double, Temperature), element: (Double, Temperature)) => (acc._1 + element._1, acc._2 + element._1*element._2))
+    weightedTemp/weighting
   }
 
   /**

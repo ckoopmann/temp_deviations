@@ -34,4 +34,15 @@ trait VisualizationTest extends MilestoneSuite {
 
 
 
+  @Test def `Check average temperature on list of 1`: Unit = {
+    val temp: Temperature = 18.57 
+    val loc: Location = Location(50.00123, 47.3321)
+    val targetLoc: Location = Location(89.00123, 77.3321)
+    val input = List((loc, temp))
+    val predictedTemp = predictTemperature(input, targetLoc)
+    assertEquals(temp, predictedTemp, 0.0001)
+  }
+
+
+
 }
