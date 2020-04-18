@@ -45,4 +45,36 @@ trait VisualizationTest extends MilestoneSuite {
 
 
 
+  @Test def `Check average temperature on list of 2`: Unit = {
+
+    val firstTemp: Temperature = 30
+    val firstLoc: Location = Location(50.00123, 47.3321)
+    val secondTemp: Temperature = 10
+    val secondLoc: Location = Location(50.00123, 47.3321)
+
+    val targetLoc: Location = Location(89.00123, 77.3321)
+    val input = List((firstLoc, firstTemp), (secondLoc, secondTemp))
+    val predictedTemp = predictTemperature(input, targetLoc)
+    val expectedTemp = 20.0
+    assertEquals(expectedTemp, predictedTemp, 0.0001)
+  }
+
+
+  @Test def `Check color interpolation`: Unit = {
+    val firstTemp: Temperature = 30
+    val firstCol: Color = Color(0,100,0)
+    val secondTemp: Temperature = 10
+    val secondCol: Color = Color(0,0,100)
+    val targetTemp: Temperature = 20
+
+
+    val expectedCol: Color = Color(0,50, 50)
+    val interpolatedCol = interpolateColor(List((firstTemp, firstCol), (secondTemp, secondCol)), targetTemp)
+    assertEquals(interpolatedCol, expectedCol) 
+  }
+
+
+
+
+
 }

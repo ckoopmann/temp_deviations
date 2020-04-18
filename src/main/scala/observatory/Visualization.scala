@@ -49,7 +49,13 @@ object Visualization extends VisualizationInterface {
     * @return The color that corresponds to `value`, according to the color scale defined by `points`
     */
   def interpolateColor(points: Iterable[(Temperature, Color)], value: Temperature): Color = {
-    ???
+    val (lowerTemp, lowerCol) = points.filter(_._1 < value).reduce((acc: (Temperature, Color), elem: (Temperature, Color)) => if (elem._1 > acc._1) elem else acc)
+    val (upperTemp, upperCol) = points.filter(_._1 > value).reduce((acc: (Temperature, Color), elem: (Temperature, Color)) => if (elem._1 < acc._1) elem else acc)
+    
+    def interpolateField(lower: Int, upper: Int): Int = round((lower*1.0 + (value - lowerTemp)*((upper - lower)/(upperTemp-lowerTemp))).toFloat)
+    Color(interpolateField(lowerCol.red, upperCol.red),
+      interpolateField(lowerCol.green, upperCol.green),
+      interpolateField(lowerCol.blue, upperCol.blue)) 
   }
 
   /**
