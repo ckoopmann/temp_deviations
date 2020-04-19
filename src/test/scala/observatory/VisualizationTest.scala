@@ -4,6 +4,7 @@ import observatory.Visualization._
 import org.junit.Assert._
 import org.junit.Test
 import scala.math.{Pi, round}
+import com.sksamuel.scrimage.{Image, Pixel}
 
 trait VisualizationTest extends MilestoneSuite {
   private val milestoneTest = namedMilestoneTest("raw data display", 2) _
@@ -13,7 +14,7 @@ trait VisualizationTest extends MilestoneSuite {
   @Test def `Check that distance of same point is 0`: Unit = {
     val first = Location(50.321, 20.112)
     val second = Location(50.321, 20.112)
-    assert(greatCircleDistance(first, second) == 0, "Same point should have distance 0")
+    assertEquals(greatCircleDistance(first, second), 0.0, 0.00001)
   }
 
   @Test def `Check that distance of opposite point is half Circumference`: Unit = {
@@ -59,6 +60,20 @@ trait VisualizationTest extends MilestoneSuite {
     assertEquals(expectedTemp, predictedTemp, 0.0001)
   }
 
+  @Test def `Check average temperature on list with close element`: Unit = {
+
+    val firstTemp: Temperature = 30
+    val firstLoc: Location = Location(50.00123, 47.3321)
+    val secondTemp: Temperature = 10
+    val secondLoc: Location = Location(51.00123, 47.3321)
+
+    val targetLoc: Location = Location(51.00122, 47.3321)
+    val input = List((firstLoc, firstTemp), (secondLoc, secondTemp))
+    val predictedTemp = predictTemperature(input, targetLoc)
+    val expectedTemp = 10.0
+    assertEquals(expectedTemp, predictedTemp, 0.0001)
+  }
+
 
   @Test def `Check color interpolation`: Unit = {
     val firstTemp: Temperature = 30
@@ -66,15 +81,18 @@ trait VisualizationTest extends MilestoneSuite {
     val secondTemp: Temperature = 10
     val secondCol: Color = Color(0,0,100)
     val targetTemp: Temperature = 20
-
-
     val expectedCol: Color = Color(0,50, 50)
     val interpolatedCol = interpolateColor(List((firstTemp, firstCol), (secondTemp, secondCol)), targetTemp)
     assertEquals(interpolatedCol, expectedCol) 
   }
 
 
-
+@Test def `Check visualization with just one value`: Unit = { val firstTemp: Temperature = 30
+    val firstCol: Color = Color(0,100,0)
+    val firstLoc: Location = Location(50.00123, 47.3321)
+    val image = visualize(List((firstLoc, firstTemp)), List((firstTemp, firstCol)))
+    assert(image.forall((x: Int, y: Int, pix: Pixel) => Color(pix.red, pix.green, pix.blue) == firstCol))
+  }
 
 
 }
